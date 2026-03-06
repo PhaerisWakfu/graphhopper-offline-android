@@ -1,0 +1,43 @@
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+*.class
+
+# Gradle（可删，会再生成）
+.gradle/
+build/
+app/build/
+
+# Local configuration（可删，会再生成）
+local.properties
+*.iml
+
+# Android Studio（可删，会再生成）
+.idea/
+*.ipr
+*.iws
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Keystore (do not commit release keys)
+*.jks
+*.keystore
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+
+# NDK (if used)
+obj/
+
+# Kotlin (if used later)
+*.kotlin_module
