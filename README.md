@@ -4,6 +4,31 @@
 
 ---
 
+## GraphHopper 为适配 Android 的改动说明
+
+本 Android 项目依赖的 `graphhopper-core` 需使用**针对 Android 做过改动的版本**（在 graphhopper 官方仓库基础上修改）。以下为在 **graphhopper-master（core）** 中为适配 Android 所做的主要改动，仅作说明，不涉及具体代码。
+
+1. **RAMDataAccess（VarHandle）**  
+   Android 的 core-oj 未提供 `VarHandle.withInvokeExactBehavior()`。在 core 的 `RAMDataAccess` 中去掉了对该方法的调用，避免在 Android 上出现 `NoSuchMethodError`。
+
+2. **SourceVersion / 编译器 API**  
+   JDK 的 `javax.lang.model.SourceVersion` 在 Android 上不存在。在 core 中新增 `JavaKeywords` 工具，并在使用 `SourceVersion.isKeyword()` 的地方（如 `IntEncodedValueImpl`、web-api 的 `JsonFeature`）改为使用 `JavaKeywords.isKeyword()`，保证在 Android 上可运行。
+
+3. **CustomModel 与 Janino**  
+   PC 上 CustomModel 通过 **Janino** 在运行时编译成 Java 类再加载；Android（ART）无法加载这类动态生成的类，会报 “can't load this type of class file”。为适配 Android，在 core 中做了以下事：
+   - **InterpretedWeightingHelper + CustomModelInterpreter**：在 Android 上不再调用 Janino，改为**解释执行** CustomModel。条件与取值在初始化时**预解析**成内部结构，算路时只做取值与运算，并缓存 EncodedValue 查找，从而支持**任意** custom_model，且性能优于“每条边都做字符串解析”的朴素实现。
+   - 在 **CustomModelParser** 中检测 Android 环境（如 `java.vm.name` 含 Dalvik/ART/Android）；若为 Android，则直接使用 `InterpretedWeightingHelper.class`，不再走 Janino 编译与加载。
+
+4. **GraphHopper 数据访问方式（MMAP）**  
+   默认用 RAM 将整图载入堆，大图在 Android 上易 OOM。在 **GraphHopper** 中新增 `setDataAccessDefaultType(DAType)` 方法，便于在 Android 端在加载前设置为 **MMAP**（并配合只读），使图以内存映射方式访问，减少堆占用，避免加载阶段 OOM。
+
+5. **AndroidFallbackWeightingHelper（可选/历史）**  
+   早期曾为仅支持两个简单 profile（universal_vehicle / universal_soldier）在 Android 上提供无需 Janino 的 fallback。当前 Android 已统一走 InterpretedWeightingHelper，任意 CustomModel 均支持，该类可保留作兼容或简单场景参考。
+
+**使用方式**：需在 **graphhopper-master** 中保留上述改动，并用 JDK 21 执行 `mvn install -DskipTests`（或 `publishToMavenLocal`），使本 Android 项目依赖到该适配后的 core。若使用未改动的官方 core，会出现 VarHandle、SourceVersion、Janino 等相关错误。
+
+---
+
 ## 第一步：准备电脑环境
 
 ### 1.1 安装 JDK
