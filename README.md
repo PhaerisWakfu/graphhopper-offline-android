@@ -1,6 +1,6 @@
 # GraphHopper Android 离线路径
 
-在 Android 上使用 GraphHopper 12.0-SNAPSHOT 做离线路径规划。以下为**本地运行保姆教程**，从环境准备到算路结果一步到位。
+在 Android 上使用 GraphHopper 12.0-SNAPSHOT 做离线路径规划。
 
 ---
 
