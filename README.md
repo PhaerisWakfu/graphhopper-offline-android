@@ -1,6 +1,6 @@
 # GraphHopper Android 离线路径
 
-在 Android 上使用 GraphHopper 12.0-SNAPSHOT 做离线路径规划。
+在 Android 上使用 GraphHopper 做离线路径规划。
 
 ---
 
